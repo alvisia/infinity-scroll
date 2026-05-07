@@ -10,7 +10,7 @@ let loadImageCount = 5;
 let isInitialLoad = true;
 
 // Unsplash API
-const apiKey = 'YOUR_API_KEY';
+const apiKey = 'kVnbpMhTfSMz0yyc2GHhvFr_AedIFx41dIWpvdFOHUE'; // Replace with 'YOUR_API_KEY' before commit
 let apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${loadImageCount}`;
 
 function updateApiUrlWithNewCount(newLoadImageCount) {
@@ -51,11 +51,27 @@ function displayPhotos() {
             alt: photo.alt_description,
             title: photo.alt_description
         });
+        // Create <p> to display photographer text, create <a> to display name & make it clickable, add class for styling
+        const photographerLink = document.createElement('a');
+        setElementAttributesHandler(photographerLink, {
+            href: photo.links.html,
+            target: '_blank',
+            title: `View ${photo.user.name}'s profile`,
+        });
+        photographerLink.textContent = photo.user.name;
+        photographerLink.classList.add('photographer-link');
+
+        const photographerText = document.createElement('p');
+        photographerText.textContent = 'Photo by ';
+        photographerText.classList.add('photographer-text');
+
         // Event Listener, check when each img is finished loading
         img.addEventListener('load', imagesLoadedCheck);
-        // Put <img> inside <a>, then put both inside imageContainer Element
+        // Put <img> inside <a>, put both inside imageContainer Element, put photographerlink inside photographerText, put both inside imageContainer
         item.appendChild(img);
         imageContainer.appendChild(item);
+        photographerText.appendChild(photographerLink);
+        imageContainer.appendChild(photographerText);
     });
 }
 
