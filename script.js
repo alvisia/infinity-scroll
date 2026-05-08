@@ -1,5 +1,6 @@
 const imageContainer = document.getElementById('image-container');
 const loader = document.getElementById('loader');
+const categoryBtns = document.querySelectorAll('button');
 
 let loadMorePhotos = false;
 let imagesLoaded = 0;
@@ -7,15 +8,28 @@ let totalImages = 0;
 let photosArray = [];
 let loadImageCount = 5;
 let isInitialLoad = true;
+let category = '';
 
 // Unsplash API
 const apiKey = 'YOUR_API_KEY'; // Replace with 'YOUR_API_KEY' before commit
 let apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${loadImageCount}`;
 
 function updateApiUrlWithNewCount(newLoadImageCount) {
-    apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${newLoadImageCount}`;
-
+    apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${newLoadImageCount}&query=${category}`;
 }
+
+categoryBtns.forEach(button => {
+    button.addEventListener('click', () => {
+        category = button.value;
+        updateApiUrlWithNewCount(5);
+        photosArray = [];
+        imageContainer.replaceChildren();
+        loadMorePhotos = false;
+        loader.hidden = false;
+        getPhotos();
+        updateApiUrlWithNewCount(30);
+    });
+});
 
 function imagesLoadedCheck() {
     imagesLoaded++;
@@ -77,6 +91,7 @@ function displayPhotos() {
 // Get Photos from Unsplash API
 async function getPhotos() {
     try {
+        console.log(apiUrl);
         const response = await fetch(apiUrl);
         photosArray = await response.json();
         displayPhotos();
@@ -88,7 +103,6 @@ async function getPhotos() {
         alert(`ERROR: ${error}`);
     }
 }
-
 
 // Check to see if scrolling near bottom of page, Load More Photos
 window.addEventListener('scroll', () => {
