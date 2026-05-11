@@ -9,6 +9,7 @@ let photosArray = [];
 let loadImageCount = 5;
 let isInitialLoad = true;
 let category = '';
+let isLoading = false;
 
 // Unsplash API
 const apiKey = 'YOUR_API_KEY'; // Replace with 'YOUR_API_KEY' before commit
@@ -25,17 +26,18 @@ categoryBtns.forEach(button => {
         photosArray = [];
         imageContainer.replaceChildren();
         loadMorePhotos = false;
-        loader.hidden = false;
+        isInitialLoad = true;
         getPhotos();
-        updateApiUrlWithNewCount(30);
     });
 });
 
 function imagesLoadedCheck() {
     imagesLoaded++;
     if (imagesLoaded === totalImages) {
-        loadMorePhotos = true;
+        isLoading = false;
         loader.hidden = true;
+        loader.classList.remove('show');
+        loadMorePhotos = true;
     }
 }
 
@@ -79,7 +81,10 @@ function displayPhotos() {
         photographerText.classList.add('photographer-text');
 
         // Event Listener, check when each img is finished loading
-        img.addEventListener('load', imagesLoadedCheck);
+        img.addEventListener('load', () => {
+            img.classList.add('display');
+            imagesLoadedCheck();
+        });
         // Put <img> inside <a>, put both inside imageContainer Element, put photographerlink inside photographerText, put both inside imageContainer
         item.appendChild(img);
         imageContainer.appendChild(item);
@@ -91,7 +96,11 @@ function displayPhotos() {
 // Get Photos from Unsplash API
 async function getPhotos() {
     try {
-        console.log(apiUrl);
+        isLoading = true;
+        if (isInitialLoad) {
+            loader.hidden = false;
+            loader.classList.add('show');
+        }
         const response = await fetch(apiUrl);
         photosArray = await response.json();
         displayPhotos();
