@@ -1,6 +1,7 @@
 const imageContainer = document.getElementById('image-container');
 const loader = document.getElementById('loader');
 const categoryBtns = document.querySelectorAll('button');
+const errorMessage = document.getElementById('error-overlay');
 
 let loadMorePhotos = false;
 let imagesLoaded = 0;
@@ -96,6 +97,7 @@ function displayPhotos() {
 // Get Photos from Unsplash API
 async function getPhotos() {
     try {
+        errorMessage.classList.remove('active');
         isLoading = true;
         if (isInitialLoad) {
             loader.hidden = false;
@@ -109,7 +111,10 @@ async function getPhotos() {
             isInitialLoad = false;
         }
     } catch (error) {
-        alert(`ERROR: ${error}`);
+        errorMessage.classList.add('active');
+        loader.classList.remove('show');
+        loader.hidden = true;
+        isLoading = false;
     }
 }
 
