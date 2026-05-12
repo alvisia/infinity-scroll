@@ -63,7 +63,7 @@ function displayPhotos() {
         // Create <img> for photo
         const img = document.createElement('img');
         setElementAttributesHandler(img, {
-            src: photo.urls.regular,
+            src: photo.urls.small,
             alt: photo.alt_description,
             title: photo.alt_description
         });
