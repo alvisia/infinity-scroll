@@ -1,8 +1,10 @@
+// DOM Elements
 const imageContainer = document.getElementById('image-container');
 const loader = document.getElementById('loader');
-const categoryBtns = document.querySelectorAll('button');
-const errorMessage = document.getElementById('error-overlay');
+const categoryBtns = document.querySelectorAll('.category-buttons button');
+const errorOverlay = document.getElementById('error-overlay');
 
+// App State
 let loadMorePhotos = false;
 let imagesLoaded = 0;
 let totalImages = 0;
@@ -10,68 +12,59 @@ let photosArray = [];
 let loadImageCount = 5;
 let isInitialLoad = true;
 let category = '';
-let isLoading = false;
 
 // Unsplash API
-const apiKey = 'YOUR_API_KEY'; // Replace with 'YOUR_API_KEY' before commit
+const apiKey = 'YOUR_API_KEY';
 let apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${loadImageCount}`;
 
+// Update API URL based on image count and selected category
 function updateApiUrlWithNewCount(newLoadImageCount) {
     apiUrl = `https://api.unsplash.com/photos/random/?client_id=${apiKey}&count=${newLoadImageCount}&query=${category}`;
 }
 
-categoryBtns.forEach(button => {
-    button.addEventListener('click', () => {
-        category = button.value;
-        updateApiUrlWithNewCount(5);
-        photosArray = [];
-        imageContainer.replaceChildren();
-        loadMorePhotos = false;
-        isInitialLoad = true;
-        getPhotos();
-    });
-});
-
-function imagesLoadedCheck() {
-    imagesLoaded++;
-    if (imagesLoaded === totalImages) {
-        isLoading = false;
-        loader.hidden = true;
-        loader.classList.remove('show');
-        loadMorePhotos = true;
-    }
-}
-
+// Set multiple attributes on an element
 function setElementAttributesHandler(element, attributes) {
     for (const key in attributes) {
         element.setAttribute(key, attributes[key]);
     }
 }
 
-// Create Elements For Links & Photos, Add to DOM
+// Check when all images in the current batch are finished loading
+function imagesLoadedCheck() {
+    imagesLoaded++;
+
+    if (imagesLoaded === totalImages) {
+        loader.hidden = true;
+        loader.classList.remove('show');
+        loadMorePhotos = true;
+    }
+}
+
+// Create photo elements and add them to the page
 function displayPhotos() {
     imagesLoaded = 0;
     totalImages = photosArray.length;
-    // Run function for each object in photosArray
+    
     photosArray.forEach((photo) => {
-        // Create <a> to link to Unsplash
         const item = document.createElement('a');
         setElementAttributesHandler(item, {
             href: photo.links.html,
-            target: '_blank'
+            target: '_blank',
+            rel: 'noopener noreferrer',
         });
-        // Create <img> for photo
+        
         const img = document.createElement('img');
         setElementAttributesHandler(img, {
-            src: photo.urls.small,
+            src: photo.urls.regular,
             alt: photo.alt_description,
             title: photo.alt_description
         });
-        // Create <p> to display photographer text, create <a> to display name & make it clickable, add class for styling
+        
         const photographerLink = document.createElement('a');
         setElementAttributesHandler(photographerLink, {
-            href: photo.links.html,
+            href: photo.user.links.html,
             target: '_blank',
+            rel: 'noopener noreferrer',
             title: `View ${photo.user.name}'s profile`,
         });
         photographerLink.textContent = photo.user.name;
@@ -81,51 +74,94 @@ function displayPhotos() {
         photographerText.textContent = 'Photo by ';
         photographerText.classList.add('photographer-text');
 
-        // Event Listener, check when each img is finished loading
+        // If an image fails, remove its card and keep the loading logic moving
+        img.addEventListener('error', () => {
+            item.remove();
+            photographerText.remove();
+            imagesLoadedCheck();
+        });
+
+        // Reveal each image after it finishes loading
         img.addEventListener('load', () => {
             img.classList.add('display');
             imagesLoadedCheck();
         });
-        // Put <img> inside <a>, put both inside imageContainer Element, put photographerlink inside photographerText, put both inside imageContainer
+
         item.appendChild(img);
-        imageContainer.appendChild(item);
         photographerText.appendChild(photographerLink);
+
+        imageContainer.appendChild(item);
         imageContainer.appendChild(photographerText);
     });
 }
 
-// Get Photos from Unsplash API
+// Fetch photos from Unsplash
 async function getPhotos() {
     try {
-        errorMessage.classList.remove('active');
-        isLoading = true;
+        errorOverlay.classList.remove('active');
+
         if (isInitialLoad) {
             loader.hidden = false;
             loader.classList.add('show');
         }
+
         const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch photos');
+        }
+
         photosArray = await response.json();
         displayPhotos();
+
         if (isInitialLoad) {
             updateApiUrlWithNewCount(30);
             isInitialLoad = false;
         }
     } catch (error) {
-        errorMessage.classList.add('active');
+        errorOverlay.classList.add('active');
         loader.classList.remove('show');
         loader.hidden = true;
-        isLoading = false;
+        loadMorePhotos = false;
     }
 }
+
+// Load a new category and reset the current image feed
+function handleCategoryClick(button) {
+    category = button.value;
+
+    categoryBtns.forEach(categoryButton => {
+        categoryButton.classList.remove('selected');
+    });
+
+    button.classList.add('selected');
+
+    updateApiUrlWithNewCount(5);
+    photosArray = [];
+    imageContainer.replaceChildren();
+    loadMorePhotos = false;
+    isInitialLoad = true;
+
+    getPhotos();
+}
+
+// Event Listeners
+categoryBtns.forEach((button) => {
+    button.addEventListener('click', () => handleCategoryClick(button));
+});
 
 // Check to see if scrolling near bottom of page, Load More Photos
 window.addEventListener('scroll', () => {
     const scrollThreshold = window.innerHeight * 1.5;
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollThreshold && loadMorePhotos) {
+
+    if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollThreshold && 
+        loadMorePhotos
+    ) {
         loadMorePhotos = false;
         getPhotos();
     }
 });
 
-// On Load
+// Initial Load
 getPhotos();

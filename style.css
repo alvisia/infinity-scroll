@@ -1,15 +1,29 @@
+/* Imports */
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
+/* Reset */
 html {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: Bebas Neue, sans-serif;
-  background: whitesmoke;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
+/* Base Styles */
+body {
+  margin: 0;
+  padding: 0 2rem;
+  min-height: 100vh;
+  font-family: Bebas Neue, sans-serif;
+  background: #70e1f5;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #ffd194, #70e1f5);
+  background: linear-gradient(to right, #ffd194, #70e1f5);
+}
+
+/* Header */
 h1 {
   text-align: center;
   margin-top: 25px;
@@ -25,9 +39,10 @@ h1 {
   bottom: 0;
   left: 0;
   right: 0;
+
   background: rgba(255, 255, 255, 0.8);
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 0.3s ease;
 }
 
 .loader.show {
@@ -41,26 +56,81 @@ h1 {
   transform: translate(-50%, -50%);
 }
 
-/* Image Container */
+/* Category Buttons */
+.category-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.category-buttons button {
+  background-color: #1f2933;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.category-buttons button:hover {
+  background-color: #334155;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+}
+
+.category-buttons button:active {
+  transform: translateY(2px);
+}
+
+.category-buttons button.selected {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.8);
+  transform: translateY(-7px);
+}
+
+/* Image Feed */
 .image-container {
-  margin: 10px 30%;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
 }
 
 .image-container img {
   width: 100%;
   margin-top: 5px;
+  border-radius: 20px;
   opacity: 0;
   transform: translateX(-10px);
   transition: 
     opacity 0.6s ease,
-    transform 0.3s ease-in;
+    transform 0.3s ease-out;
 }
 
 .image-container img.display {
-  transform: translateX(0);
   opacity: 1;
+  transform: translateX(0);
 }
 
+/* Photographer Attribution */
+.photographer-text {
+  text-align: center;
+  margin: 0.4rem 0 1.5rem;
+  padding-bottom: 2rem;
+  font-size: 25px;
+  color: #334155;
+}
+
+.photographer-link {
+  color: #0077b6;
+  text-decoration: none;
+}
+
+.photographer-link:hover {
+  color: #00bcd4;
+  text-decoration: underline;
+}
+
+/* Error Overlay */
 .error-overlay {
   display: none;
   z-index: 2;
@@ -69,6 +139,7 @@ h1 {
   bottom: 0;
   left: 0;
   right: 0;
+
   background: rgba(0, 0, 0, 0.7);
 }
 
@@ -79,16 +150,41 @@ h1 {
 }
 
 .error-overlay p {
-  font-size: 3.5em;
+  max-width: 90vw;
+  background-color: #7f1d1d;
+  color: #fff7ed;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid #dc2626;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.25);
+  font-size: 3rem;
 }
 
-/* Media Query: Large SmartPhone */
+/* Media Queries */
 @media screen and (max-width: 600px) {
   h1 {
+    font-size: 25px;
+    letter-spacing: 2px;
+  }
+
+  .category-buttons {
+    gap: 1rem;
+  }
+
+  .category-buttons button {
+    font-size: 15px;
+  }
+
+  .image-container {
+    max-width: 500px;
+  }
+
+  .photographer-text {
+    padding-bottom: 1.2rem;
     font-size: 20px;
   }
-  
-  .image-container {
-    margin: 10px;
+
+  .error-overlay p {
+    font-size: 1.2rem;
   }
 }
